@@ -1,0 +1,10 @@
+dbms: postgres
+postgres:
+  host: postgres # set to `postgres` if using docker compose
+  port: 5432
+  database: auction
+  user: postgres
+  password: postgres
+ably:
+  apiKey:
+env: development

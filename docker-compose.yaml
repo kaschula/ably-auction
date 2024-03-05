@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  adbc:
+    image: ghcr.io/ably-labs/adbc:latest
+    ports:
+      - 2259:2259 # exposes /health and /metrics http endpoints
+    env_file:
+      - adbc.env # load config from env file
+    environment:
+      - ADBC_POSTGRES_HOST=postgres # override the host to talk to postgres on adbc_network
+
+    volumes:
+      - ./adbc.yaml:/adbc.yaml:ro # mount yaml config file
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      auction_network:
+  postgres:
+    image: postgres:11-alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auction
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres"]
+      interval: 2s
+      retries: 30
+    networks:
+      auction_network:
+    volumes:
+      - auction_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  auction_postgres_data:
+
+networks:
+  auction_network:
